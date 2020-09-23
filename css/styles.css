@@ -1,192 +1,295 @@
 * {
-  box-sizing: border-box;
-}
+    box-sizing: border-box;
+  }
+  
+  html,body{
+      margin: 0;
+      padding: 0;
+  }
+  header, section, article, footer, p,main,h1,h2,h3,h4{
+      margin: 0;
+      padding: 0;
+  }
+  
+  html{
+      height: 100%;
+  }
+  
+  body{    
+      height: 100vh;
+      font-family: Merriweather, "IBM Plex Mono", sans-serif, Monospace;
+      font-size: 20xp;
+      color: #666;
+      line-height: 1.5;
+      overflow-x: hidden;
+      
+      display: flex;
+      flex-direction: column;
+  }
+  
+  body > section, header, img , ul, li {
+      width: 100%;
+      margin: 0;
+  }
+  
+  section header > h1{
+      padding:1rem 0 1rem 0;  
+      font-size:1rem;
+  }
+  
+  section{
+      display: block;
+      width:100%;
+      padding:0 1rem 1rem 1rem;
+      margin:0 auto;
+      margin-bottom:0;
+  }
+  body>header, body>footer{
+      background:#fff;
+      color:#666;
+      padding:1rem 0;
+      text-align: center;
+      margin-top:0;
+  }
+  
+  header h1 {
+      font-family: "IBM plex mono", Monospace;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 1px;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      text-align: center;    
+      
+  }
+  
+  img {  
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-top: 40px;
+      margin-bottom: 30px;
+  }
+  
+  ul {
+      display: block;
+      border: 0;
+      font-size: 100%;
+      font: inherit;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+  }
 
-html,body{
-    margin: 0;
-}
-header, section, article, footer, p,main,h1,h2,h3,h4{
-    margin: 0;
-    padding: 0;
-}
-
-html{
-    height: 100%;
-}
-
-body{    
-    height: 100vh;
-    font-family: Merriweather, "IBM Plex Mono", sans-serif, Monospace;
-    color: #666;
-    line-height: 1.7;
-    
-    display: flex;
-    flex-direction: column;
-}
-
-body > section, header, img, ul, li {
-    width: 100%;
-    margin: 0;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-section header > h1{
-    padding:1rem 0 1rem 0;  
-    font-size:1rem;
-}
-
-section{
-    display: block;
-    width:100%;
-    padding:0 1rem 1rem 1rem;
-    margin:0 auto;
-    margin-bottom:0;
-}
-body>header, body>footer{
-    background:#fff;
-    color:#666;
-    padding:1rem 0;
-    text-align: center;
-    margin-top:0;
-}
-
-header h1 {
-    font-family: "IBM plex mono", Monospace;
-    font-weight: 600;
-    font-size: 16px;
-    letter-spacing: 1px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    text-align: center;    
-    
-}
-
-img {  
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-top: 40px;
-    margin-bottom: 30px;
-}
-
-ul {
-    display: block;
+  p {
     border: 0;
     font-size: 100%;
     font: inherit;
+    vertical-align: baseline;
     margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-a {
-    color: #666;  
-    text-decoration: none;  
-    padding: 20px;
-}
-
-.main-nav {
-    padding: 10px 20px 0;
-    /* max-width: 600px; */
-    /* width: 100%; */
-    background: #fff;
-    background: rgba(255,255,255,.90);
-    margin: 0 auto;
-    text-align: right;
-    /* position: fixed; */
-    z-index: 100
-}
-
-.button {
-    background: #5badf0;
-    color: #fff;
-    font-family: "Merriweather Sans";
-    font-weight: bold;    
-    padding: 7px 10px 7px;    
-    border-radius: 5px;
-    border: none;
-    margin-bottom: 10px;    
-    font-size: 14px; 
-    line-height: 1.35;
-}
-
-main {
-    margin: 0;
-    padding: 0;
-}
-
-.content{
-    flex:1 0 auto;
-   /* flex-grow: 1;
-    flex-shrink: 0;
-    flex-basis: auto;*/
-}
-
-.home {
-    margin: 0 auto;
-    padding: 0px 40px 20px 40px;
-}
-
-#header {    
-    border-bottom: 1px dotted #eee;
-    margin-bottom: 40px;
-    padding-bottom: 50px;
-    text-align: center;
-    position: relative;
-    
-}
-
-#post-list {  
-    margin: 0;  
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-#list {    
-    margin: 0;
-    padding: 0px 30px 0px 30px;
-}
-
-#list h2 {
-    font-family: "Merriweather Sans";
-    font-weight: 300;
-    font-size: 17px;
-    line-height: 1.5em;
-    color: #666;
-    margin-top: 2px
-    letter-spacing: 2px;    
-}
-
-#wrapper {      
-    padding: 0px 40px 0px;
+    padding-bottom: 25px;
+  }
+  
+  aside {
+      margin:0;
+      padding-left: 20px;
+      vertical-align: center;
+  }
+  
+  #post-list a {
+      display: block;
+      font-size: 20px;
+      color: #666;  
+      text-decoration: none; 
+      font-family: 'Merriweather', serif;
+  }
+  
+  .main-nav {
+      padding: 20px 20px 0;
+      /* max-width: 600px; */
+      /* width: 100%; */
+      background: #fff;
+      background: rgba(255,255,255,.90);
+      margin: 0 auto;
+      text-align: right;
+      /* position: fixed; */
+      z-index: 100
+  }
+  
+  .button {
+      background: rgba(0, 136, 169);
+      color: #fff;
+      font-family: 'Merriweather', serif;
+      font-weight: 300;    
+      padding: 7px 10px 7px;    
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 10px;    
+      font-size: 14px; 
+      line-height: 1.35;
+  }
+  
+  .button:hover {
+      opacity: .9;
+  }
+  
+  main {
+      margin: 0;
+      padding: 0;
+  }
+  
+  .content{
+      flex:1 0 auto;
+     /* flex-grow: 1;
+      flex-shrink: 0;
+      flex-basis: auto;*/
+      margin-bottom: 70px;
+      padding: 30px 30px;
+  }
+  
+  .home {
+      margin: 0 auto;
+      padding: 0px 40px 20px 40px;
+  }
+  
+  #header {    
+      border-bottom: 1px dotted #eee;
+      margin-bottom: 40px;
+      padding-bottom: 50px;
+      text-align: center;
+      position: relative;
+      
+  }
+  
+  #post-list { 
+      margin: 0;  
+  }
+  
+  #list {    
+      display: block;
+      margin: 0;
+      padding: 0px 30px 0px 30px;
+  }
+  
+  
+  #list h2 {
+      font-family: 'Merriweather', serif;
+      font-weight: 300;
+      font-size: 19px;
+      line-height: 1.5em;
+      color: #666;
+      margin-top: 2px
+      letter-spacing: 2px;    
+  }
+  
+  #wrapper {      
+      padding: 0px 40px 0px;
+      max-width: 600px;
+      margin: 0 auto;
+  }
+  
+  #post-list.home {
     max-width: 600px;
     margin: 0 auto;
-}
+      padding: 0px 10px 20px 10px;
+  }
+  
+  
+  #post-list li+li {
+    padding-top: 20px;
+    border-top: 1px dotted #eee;
+  }
+  
+  #post-list li:last-child {    
+      border-bottom: 1px dotted #eee;
+  }
+  
+  #post-list li {     
+      display: inline-block;
+      justify-content: center;
+      align-items: center;
+      text-align: left;
+      padding-bottom: 20px;
+  }
+  
+  #post-list .dates {
+    float: right;
+    position: relative;
+    top: 1px;
+    font-weight: 300;
+    font-size: 17px;
+    font-family: 'Merriweather', serif;
+    line-height: 1.8;
+    color: #bbb;
+  }
+  
+  #post-list .year {
+    margin: 0 auto;
+    position: relative;
+    font-size: 20px;
+    font-family: "IBM Plex Mono", monospace;
+    color: #bbb;
+    padding:5px 0 5px;
+  }
+  
+  #list a:hover, #list li:hover .dates, #list li:hover .year{
+      text-decoration: none;
+      color: rgba(0, 136, 169, .9);
+  }
 
-.copyright {
-  color: #666;
-  opacity: .5;
-  font-family: "IBM Plex Mono", Monospace;
-  font-size: 14px;
-  font-weight: 400;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 0;
-}
+  footer {
+    display: inline-block;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 30px 3%;
+    color: #ffffff;
+    background-color: rgba(0, 136, 169, 0.9);
+  }
 
-.social { 
-  margin: 0;
-  text-align: center;
-  color: #666;
-  /*box-shadow: inset 0 1px 0 #eee;*/
-}
+  footer >section {
+    margin: 0;
+    padding: 0;
+  }
 
-.fa {  
-    color: #666;  
-    padding: 20px;
+  footer a h1 {
+    /*font-family: "League Spartan", Arial; */
+    font-size: 30px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .footer {
+    width: 100%;
+    background-color: rgba(0, 136, 169, 0.9);
+  }
+  
+  .social {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .copyright {
+    color: #fff;
+    opacity: 0.5;
+    font-family: "IBM plex mono", Monospace;
+    font-size: 16px;
+    font-weight: 400;
+    align-items: center;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+  
+  .copyright:hover {
+    color: rgba(255, 255, 255, 0.9);
+    opacity: 0.8;
+  }
+  
+  .fa {
+    color: #fff;
+    padding: 5px;
     font-size: 30px;
     text-decoration: none;
     border-radius: 50%;
@@ -195,10 +298,9 @@ main {
   }
   
   .fa:hover {
-    color: rgba(0, 136, 169);
+    color: rgba(255, 255, 255, 0.9);
     opacity: 0.8;
   }
-
-
-
-
+  
+  
+  
