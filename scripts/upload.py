@@ -6,7 +6,7 @@ ssh.load_system_host_keys()
 
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-ssh.connect(hostname='206.189.216.1',username='root',password='',key_filename='C:/Users/M/.ssh/carrot_key',port='22')
+ssh.connect(hostname='hostname',username='username',password='',key_filename='C:/Users/M/.ssh/carrot_key',port='22')
 
 sftp_client=ssh.open_sftp()
 

@@ -2,7 +2,7 @@ import json
 import requests
 
 
-api_token = '593abe7a71175fde3d50f516cd73a5bf9c1951f5423c15d9d89109a6846f731b'
+api_token = 'token'
 api_url_base = 'https://api.digitalocean.com/v2/'
 headers = {'Content-Type': 'application/json',
            'Authorization': 'Bearer {0}'.format(api_token)}

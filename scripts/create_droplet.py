@@ -1,6 +1,6 @@
 import digitalocean
 
-droplet = digitalocean.Droplet(token="593abe7a71175fde3d50f516cd73a5bf9c1951f5423c15d9d89109a6846f731b",
+droplet = digitalocean.Droplet(token="token",
                                name='jediluke-space',
                                region='sfo2',
                                image='ubuntu-20-04-x64',
