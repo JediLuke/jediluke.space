@@ -231,7 +231,7 @@
     padding:15px 0 15px;
   }
   
-  #list a:hover, #list li:hover .dates, #list li:hover .year{
+  #list a:hover {
       text-decoration: none;
       color: rgba(0, 136, 169, .9);
   }
