@@ -53,13 +53,12 @@ def check_droplet(droplet):
 	for droplet, details in enumerate(my_droplets['droplets']):
 		for key, value in details.items():
 			x = details['name']
-			if droplet != x: continue
-			droplet_exists = x
-
-	if droplet_exists:
-		droplet_id = details['id']
-		click.echo(droplet_id)
-		return droplet_id
+			droplet_id = details['id']			
+			if droplet == x:				
+				droplet_exists = x			
+				click.echo('Your droplet exists!'.format(droplet_exists))
+			return droplet_id
+		
 
 @click.group()
 @click.version_option(version='1.0', prog_name='Live')
@@ -108,7 +107,6 @@ def take_down(droplet, domain_name):
 	"""Take down or destroy a droplet. Provide a droplet name and domanin name attached to the droplet."""
 
 	dropletId = check_droplet(droplet)
-	click.echo(dropletId)
 	click.echo('>> Deleting your droplet {} with droplet id {}... '.format(droplet, dropletId))
 	del_droplet(dropletId)
 	click.echo('>> Deleting your domain name {}... '.format(domain_name))
