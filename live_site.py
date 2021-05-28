@@ -28,11 +28,11 @@ def get_all_droplets():
 	else:
 		return 
 
-def del_droplet(droplet, dropletId):
+def del_droplet(dropletId):
 	droplet = digitalocean.Droplet(token=api_token,id=dropletId)
 
 	destroyed = droplet.destroy()
-	click.echo(" Success! Your droplet {} with a '{}' ID has been deleted.".format(droplet,dropletId))
+	click.echo(" Success! Your droplet with an ID '{}' has been deleted.".format(dropletId))
 	
 def del_domain(domain_name):    
 	domain = digitalocean.Domain(token=api_token, name=domain_name)
@@ -109,10 +109,10 @@ def take_down(droplet, domain_name):
 
 	dropletId = check_droplet(droplet)
 	click.echo(dropletId)
-	#click.echo('>> Deleting your droplet {} with droplet id {}... '.format(droplet, dropletId))
-	#del_droplet(droplet, dropletId)
-	#click.echo('>> Deleting your domain name {}... '.format(domain_name))
-	#del_domain(domain_name)
+	click.echo('>> Deleting your droplet {} with droplet id {}... '.format(droplet, dropletId))
+	del_droplet(dropletId)
+	click.echo('>> Deleting your domain name {}... '.format(domain_name))
+	del_domain(domain_name)
 
 
 if __name__ == '__main__':
