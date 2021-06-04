@@ -1,4 +1,0 @@
-
-		[console_script]
-		live_site=live_site:main
-	
