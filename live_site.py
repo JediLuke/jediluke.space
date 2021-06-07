@@ -25,7 +25,7 @@ headers = {'Content-Type': 'application/json',
 if os.getenv('SSH_KEY'):
     ssh_key = os.getenv('SSH_KEY')
 else:
-    ssh_key = input (' Enter your SSH Key path: ')   
+    ssh_key = 'C:/Users/M/.ssh/white_key'  
 
 
 def get_all_droplets():
@@ -58,7 +58,7 @@ def create_droplet(droplet):
     if this_droplet_exists:
         raise RuntimeError('>>> [!] Droplet {} already exists.'.format(droplet))
     else:
-        click.secho('>>> Please wait until we finished creating your droplet ...', fg='bright_yellow')
+        click.secho('Please wait while we create your new blog droplet ...', fg='bright_yellow')
         new_droplet = digitalocean.Droplet(token=api_token,
                                   name=droplet,
                                   region='nyc1',
@@ -73,7 +73,7 @@ def create_droplet(droplet):
                                   tags="web")               
 
         new_droplet.create()
-        time.sleep(15)        
+        time.sleep(10)        
 
         droplet_created = does_droplet_exists(droplet)
 
@@ -85,6 +85,17 @@ def create_droplet(droplet):
             raise RuntimeError('[!] Failed to create your droplet.')    
 
 
+def get_droplet_id():
+    my_droplets = get_all_droplets()
+
+    for each_droplet, details in enumerate(my_droplets['droplets']):
+        for key, value in details.items():
+            x = details['name']
+            dropletId = details['id']
+            return dropletId
+    else:
+        return None
+
 
 def get_hostname_ip(droplet):
 # This function is to cycle through all the droplets and 
@@ -93,7 +104,7 @@ def get_hostname_ip(droplet):
     result = ''
     ip = ''
 
-    click.secho(">>> Inspecting droplets...", fg='bright_yellow')   
+    click.secho("Inspecting droplets...", fg='bright_yellow')   
     my_droplets = get_all_droplets()
     
     for each_droplet, details in enumerate(my_droplets['droplets']):
@@ -139,7 +150,10 @@ def del_domain(domain):
 
     destroyed = domain.destroy()
     
-    return destroyed
+    if destroyed:
+        click.secho('>>> Domain name {} successfully deleted and removed from droplet IP mapping!'.format(domain), fg='bright_green')
+    else:
+        raise RuntimeError('>>> [!] Failed to delete the domain name.')
 
 
 def does_domain_exists(domain):
@@ -169,35 +183,27 @@ def add_new_domain(droplet, domain):
     time.sleep(5)
 
     if response.status_code == 201:
-        created_domain = json.loads(response.content)        
-        click.secho(">>> Domain name {} created successfully! Your domain's IP Address is {}.".format(domain, ip_address), fg='bright_green')        
+        created_domain = json.loads(response.content)
+        click.echo('{}'.format(created_domain))        
+        click.secho(">>> Domain name created successfully!", fg='bright_green')        
         return created_domain
     else:
         raise RuntimeError('>>> [?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content))
-        return None
         
 
 def create_domain(droplet, domain):
 
-    click.secho('>>> Creating your domain name. Please wait ...', fg='bright_yellow')    
+    click.secho('Creating your domain name. Please wait ...', fg='bright_yellow')    
 
     this_domain_exists = does_domain_exists(domain)    
 
     if this_domain_exists:
         click.secho('>>> Domain name {} already exists!'.format(domain), fg='bright_red')
-        click.secho('>>> Deleting and removing it to droplet IP mapping ...', fg='bright_yellow')
-        
-        destroyed = del_domain(domain)
-
-        if destroyed:
-            click.secho('>>> Domain name {} successfully deleted and removed from droplet IP mapping!'.format(domain), fg='bright_green')
-            click.secho(">>> We'll now creating a new domain name {} ...".format(domain), fg='bright_yellow')
-            add_new_domain(droplet, domain)            
-        else:
-            raise RuntimeError('>>> [!] Failed to delete the domain name.')
+        click.secho('>>> Deleting and removing it to droplet IP mapping ...', fg='bright_yellow')        
+        del_domain(domain)
+        add_new_domain(droplet, domain)
     else:
         add_new_domain(droplet, domain)
-
 
 
 def add_domain_rec(droplet, domain):
@@ -205,6 +211,7 @@ def add_domain_rec(droplet, domain):
     the_domain_exists = does_domain_exists(domain)
 
     if the_domain_exists:
+        click.secho('Adding your A record ...', fg='bright_yellow')
         ip = get_hostname_ip(droplet)
         rec_data = str(ip)
 
@@ -216,11 +223,10 @@ def add_domain_rec(droplet, domain):
 
         if response.status_code == 201:
             records = json.loads(response.content)
-            click.secho('>>> Your A Record added successfully!', fg='bright_green')            
-            return records
+            click.echo('{}'.format(records))
+            click.secho('>>> Your A Record added successfully!', fg='bright_green')
         else:
             raise RuntimeError('[?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content))
-            return None
     else:
         click.secho('>>> [!] Failed adding your A record.', fg='bright_red')
         raise RuntimeError(">>> [!] Your domain name {} doesn't exists.".format(domain))
@@ -232,27 +238,26 @@ def set_nginx(droplet, domain):
     client = SSHClient(host, user='root', password='', pkey=ssh_key,port=22)
     click.secho('Connecting to your server...', fg='bright_yellow')
 
+    def cmd_run(cmd):
+        for command in cmd:
+                x = command
+                output = client.run_command(x)
+
 
     def upload():
     # This funtion will:
     # Upload the initial files and configuration needed in setting up Nginx to the server 
 
 
-        def cmd_run(cmd):
-            for command in cmd:
-                x = command
-                output = client.run_command(x)  
-
-        click.echo('Setting up your configuration block for {}...'.format(domain))
+        click.secho('Setting up your configuration block for {}...'.format(domain), fg='bright_yellow')
         loc_file1 = './files/jediluke.space.txt'
         rem_file1 = '/etc/nginx/jediluke.space.txt'
         loc_file2 = './files/nginx.conf'
         rem_file2 = '/etc/nginx/nginx.conf'
 
         upload_1 = client.copy_file(loc_file1, rem_file1)
-        time.sleep(5)
         upload_2 = client.copy_file(loc_file2, rem_file2)
-        time.sleep(5)
+        click.secho('>>> Config files uploaded sucessfully!', fg='bright_green')
 
         cmd = ["sudo mv /etc/nginx/jediluke.space.txt /etc/nginx/sites-available/jediluke.space", 
         "sudo ln -s /etc/nginx/sites-available/jediluke.space /etc/nginx/sites-enabled/", 
@@ -260,11 +265,11 @@ def set_nginx(droplet, domain):
         "sudo systemctl restart nginx"
         ]
 
-        # Cycle through the cmd list and run it on the server
+        # Cycle through the cmd list and run each command on the server
         cmd_run(cmd)
 
-    time.sleep(3)
-    # Cycle through the cmd list and run each command to the server
+    
+    # Cycle through the cmd list and run each command on the server
     # The last command 'upload' will call upload() to upload Nginx config files
     cmd = ["sudo apt-get update", 
     "sudo apt-get -y install nginx", 
@@ -289,49 +294,40 @@ def set_nginx(droplet, domain):
     else:
         click.secho('>>> Your Nginx setup is complete!', fg='bright_green')
 
-    def upload_temp(droplet):
-
-        loc_file = 'D:/Workbench/Luke/jediluke.space/files/index.html'
-        rem_file = '/var/www/jediluke.space/html'
-        upload = client.copy_file(loc_file, rem_file, recurse=True)
+    def upload_temp():
+        # Uploading the html file to the server
+        loc_file = './files/index.html'
+        rem_file = '/var/www/jediluke.space/html/index.html'
+        upload = client.copy_file(loc_file, rem_file)
+        #click.secho('Your HTML files uploaded successfully!', fg='bright_green')
 
         # Set ownership of the directory
         cmd = ["sudo chown -R root:root /var/www/jediluke.space/html", 
         "sudo chmod -R 755 /var/www/jediluke.space"
         ]
-
+        # Cycle through the cmd list and run each command on the server
         cmd_run(cmd)
+               
 
-        path = loc_file
-        # Scan the directory
-        obj = os.scandir(path)
-        # List all files and directories 
-        # in the specified path that are being uploaded successfully to the server.
-        click.secho('>>> File/s that are successfully uploaded to the server: ', fg='bright_yellow')
-        for entry in obj :
-            if entry.is_dir() or entry.is_file():
-                click.secho(' * ', entry.name, fg='bright_green')
-
-        obj.close() 
-
-        click.secho('Waiting for up to 30 seconds for everything to finish...', fg='bright_yellow')
-
-
+    click.secho('Uploading your HTML files to the server...', fg='bright_yellow')
+    click.secho('Waiting for up to 30 seconds for everything to finish...', fg='bright_yellow')
     upload_temp()
-    time.sleep(30)
-        
-    url = 'http://jediluke.space/index'
+    time.sleep(15)
+    click.secho('>>> HTML files uploaded successfully to the server!', fg='bright_green')
+    
+    # Test the URL    
+    url = 'http://jediluke.space/index.html'
     response = requests.get(url)        
 
     if response.status_code == 200:
-        click.secho('>>> You can now access your homepage at {}! '.format(url), fg='bright_green')
+        click.secho('You can now access your homepage at {}! '.format(url), fg='bright_green')
         click.echo(response.text)      
     else:
-        return None            
+        raise RuntimeError('>>> [?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content)) 
 
 
 @click.group()
-@click.version_option(version='1.0', prog_name='Live')
+@click.version_option(version='1.0', prog_name='live_site')
 def main():
     """
     This tool helps you manage website setup.
@@ -346,7 +342,7 @@ def main():
 # Commands in this script
 
 @main.command()
-@click.option('--url', '-u', default='http://jediluke.space', help='URL of the website.', prompt=True)
+@click.option('--url', '-u', default='http://jediluke.space', help='URL of the website.')
 # Check status of the website
 def status(url):
     """Checks the status of a website by providing a URL.
@@ -360,12 +356,37 @@ def status(url):
     try:    
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
-            click.echo(Fore.GREEN + '>>> Your website {} is up and running!]'.format(response.status_code,url))   
+            click.secho('>>> Your website {} is up and running!]'.format(response.status_code,url), fg='bright_green')   
         else:
-            click.echo(Fore.RED + ' HTTP status code: {} [Your website {} is down!]'.format(response.status_code,url))
+            click.secho('>>> HTTP status code: {} - Your website {} is down!'.format(response.status_code,url), fg='bright_red')
 
     except Exception as e:
-        click.echo(Fore.RED + '>>> Your website {} is down! - \n {}'.format(url,str(e)))
+        click.secho('>>> Your website {} is down! - \n {}'.format(url,str(e)), fg='bright_red')
+
+
+@main.command()
+@click.option('--droplet', '-d', default='jediluke-space', help='Droplet name to delete.')
+@click.option('--domain', '-dn', default='jediluke.space', help='Domain name to delete.')
+def take_down(droplet, domain):
+    """Takes down or destroys a droplet. Provide a droplet name and domain name attached to the droplet.    
+    
+    Ex. live_site take-down or live_site take-down -d jediluke-space -dn jediluke.space
+    """
+    this_droplet_exists = does_droplet_exists(droplet)
+
+    if this_droplet_exists:
+        dropletId = get_droplet_id()
+        click.secho('Deleting your existing droplet {} ...'.format(droplet), fg='bright_yellow')
+        del_droplet(dropletId)
+
+        this_domain_exists = does_domain_exists(domain)    
+
+        if this_domain_exists:
+            del_domain(domain)
+        else:
+             click.secho(">>> Domain name {} doesn't exist!.".format(domain), fg='bright_red')
+    else:
+        click.secho(">>> Your droplet <{}> doesn't exist!.".format(droplet), fg='bright_red')
 
 
 @main.command()
