@@ -5,8 +5,6 @@ import click
 import requests
 import colorama
 import digitalocean
-from colorama import Fore
-from colorama import init
 from pssh.clients import SSHClient
 
 
