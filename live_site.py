@@ -25,7 +25,7 @@ headers = {'Content-Type': 'application/json',
 if os.getenv('SSH_KEY'):
     ssh_key = os.getenv('SSH_KEY')
 else:
-    ssh_key = 'C:/Users/M/.ssh/white_key'  
+    ssh_key = input('Enter your SSH KEY path: ') 
 
 
 def get_all_droplets():
@@ -402,4 +402,4 @@ def deploy(droplet, domain):
 
 
 if __name__ == '__main__':
-    main()
+    main()    
