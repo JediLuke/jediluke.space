@@ -6,6 +6,8 @@ import requests
 import colorama
 import digitalocean
 from pssh.clients import SSHClient
+from gevent import joinall
+from pathlib import Path
 
 
 if os.getenv('DIGITAL_OCEAN_AUTH_TOKEN'):
@@ -78,7 +80,7 @@ def create_droplet(droplet):
         if droplet_created:
             click.secho(">>> Droplet created sucessfully! ", fg='bright_green')
             d = new_droplet.__str__()
-            click.secho(d,  fg='bright_green')
+            click.echo(d)
         else:
             raise RuntimeError('[!] Failed to create your droplet.')    
 
@@ -236,16 +238,42 @@ def set_nginx(droplet, domain):
     client = SSHClient(host, user='root', password='', pkey=ssh_key,port=22)
     click.secho('Connecting to your server...', fg='bright_yellow')
 
-    def cmd_run(cmd):
+    def run_cmd(cmd):
         for command in cmd:
                 x = command
                 output = client.run_command(x)
+                for line in output.stdout:
+                    click.echo(line)
+    
+    def list_uploaded_files(path):
+        
+        # scan the directory
+        basepath = Path(path)
+        # List all files and directories 
+        # in the specified path that are being uploaded successfully to the server.
+        files_in_basepath = basepath.iterdir()
+        click.echo(' Files uploaded successfully to the server: ')
+        for item in files_in_basepath:
+            if item.is_dir() or item.is_file():
+                click.echo(' * ',item.name)
+        
+    def set_ssl():
+        # Enabling HTTPS
+        click.secho('Enabling HTTPS for your website ...', fg='bright_yellow')
 
+        # Commands to execute on the server
+        cmd = ['sudo snap install core',
+        'sudo snap refresh core',
+        'sudo snap install --classic certbot',
+        'sudo ln -s /snap/bin/certbot /usr/bin/certbot',
+        'certbot run --nginx --agree-tos -n -d jediluke.space -d www.jediluke.space -m beauregard.technical.academy@gmail.com --no-eff-email',
+        'sudo certbot renew --dry-run']
+        # Cycle through the cmd list and run each command on the server
+        run_cmd(cmd)
 
-    def upload():
+    def upload_config_files() :
     # This funtion will:
-    # Upload the initial files and configuration needed in setting up Nginx to the server 
-
+    # Upload the initial files and configuration needed in setting up Nginx to the server
 
         click.secho('Setting up your configuration block for {}...'.format(domain), fg='bright_yellow')
         loc_file1 = './files/jediluke.space.txt'
@@ -257,6 +285,9 @@ def set_nginx(droplet, domain):
         upload_2 = client.copy_file(loc_file2, rem_file2)
         click.secho('>>> Config files uploaded sucessfully!', fg='bright_green')
 
+        path = 'files/'
+        list_uploaded_files(path)
+
         cmd = ["sudo mv /etc/nginx/jediluke.space.txt /etc/nginx/sites-available/jediluke.space", 
         "sudo ln -s /etc/nginx/sites-available/jediluke.space /etc/nginx/sites-enabled/", 
         "sudo nginx -t", 
@@ -264,54 +295,64 @@ def set_nginx(droplet, domain):
         ]
 
         # Cycle through the cmd list and run each command on the server
-        cmd_run(cmd)
+        run_cmd(cmd)
+        
 
-    
-    # Cycle through the cmd list and run each command on the server
-    # The last command 'upload' will call upload() to upload Nginx config files
-    cmd = ["sudo apt-get update", 
-    "sudo apt-get -y install nginx", 
-    "sudo ufw allow 'Nginx HTTP' ",
-    "sudo ufw status", 
-    "systemctl status nginx", 
-    "sudo mkdir -p /var/www/jediluke.space/html", 
-    "sudo chown -R root:root /var/www/jediluke.space/html", 
-    "sudo chmod -R 755 /var/www/jediluke.space", 
-    "upload"
-    ] 
-
-    for command in cmd:
-        if command != 'upload':
-            x = command
-            output = client.run_command(x)
-            for line in output.stdout:
-                click.echo(line)
-            #click.echo(' Completed the command >>>{}<<<'.format(x), ' Exit code: ', output.exit_code)
-        else:
-            upload()
-    else:
-        click.secho('>>> Your Nginx setup is complete!', fg='bright_green')
-
-    def upload_temp():
+    def upload_html_files():
         # Uploading the html file to the server
-        loc_file = './files/index.html'
-        rem_file = '/var/www/jediluke.space/html/index.html'
-        upload = client.copy_file(loc_file, rem_file)
-        #click.secho('Your HTML files uploaded successfully!', fg='bright_green')
 
+        click.secho('Uploading your HTML files to the server...', fg='bright_yellow')
+        click.secho('Please wait for up to 30 seconds for everything to finish...', fg='bright_yellow')
+
+        loc_file = './html'
+        rem_file = '/var/www/jediluke.space/html'
+        uploaded = client.copy_file(loc_file, rem_file, recurse=True)
+
+        path = 'html/'
+        list_uploaded_files(path)
+
+        time.sleep(5)
         # Set ownership of the directory
         cmd = ["sudo chown -R root:root /var/www/jediluke.space/html", 
         "sudo chmod -R 755 /var/www/jediluke.space"
         ]
         # Cycle through the cmd list and run each command on the server
-        cmd_run(cmd)
-               
+        run_cmd(cmd)
 
-    click.secho('Uploading your HTML files to the server...', fg='bright_yellow')
-    click.secho('Waiting for up to 30 seconds for everything to finish...', fg='bright_yellow')
-    upload_temp()
-    time.sleep(15)
-    click.secho('>>> HTML files uploaded successfully to the server!', fg='bright_green')
+
+    def install_nginx():
+        # Cycle through the cmd list and run each command on the server
+        # The last command 'upload' will call upload() to upload Nginx config files
+
+        click.secho('Installing Nginx web server ...', fg='bright_yellow')
+
+        cmd = ["sudo apt-get update", 
+        "sudo apt-get -y install nginx", 
+        "sudo ufw allow 'Nginx HTTP' ",
+        "sudo ufw status", 
+        "systemctl status nginx", 
+        "sudo mkdir -p /var/www/jediluke.space/html", 
+        "sudo chown -R root:root /var/www/jediluke.space/html", 
+        "sudo chmod -R 755 /var/www/jediluke.space", 
+        "upload"
+        ] 
+
+        for command in cmd:
+            if command != 'upload':
+                x = command
+                output = client.run_command(x)
+                for line in output.stdout:
+                    click.echo(line)
+                #click.echo(' Completed the command >>>{}<<<'.format(x), ' Exit code: ', output.exit_code)
+            else:
+                upload_config_files()               
+                set_ssl()
+        else:
+            click.secho('>>> Your Nginx setup is complete!', fg='bright_green')    
+           
+    install_nginx()    
+    upload_html_files()
+    time.sleep(5)    
     
     # Test the URL    
     url = 'http://jediluke.space/index.html'
@@ -348,7 +389,6 @@ def status(url):
         Ex.
         live_site status -u http://jediluke.space
     """
-    init(autoreset=True)
     response =''
 
     try:    
