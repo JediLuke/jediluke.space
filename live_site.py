@@ -395,7 +395,7 @@ def insert_code(date, link, title):
             new_html_file.write(new_text)
 
 # Checks if a new html file exists in the folder "articles"
-def check_new_file():
+def update_index_page():
         
     path = '/articles'
     fullpath = 'html{}'.format(path)
@@ -417,9 +417,6 @@ def check_new_file():
                 time.sleep(3)
         else:
             click.secho("Index page updated successfully!", fg='bright_green') 
-
-def update_index_page():
-    check_new_file()
 
 # <--End-->
 
