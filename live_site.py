@@ -8,6 +8,8 @@ import digitalocean
 from pssh.clients import SSHClient
 from gevent import joinall
 from pathlib import Path
+import html
+from bs4 import BeautifulSoup
 
 
 if os.getenv('DIGITAL_OCEAN_AUTH_TOKEN'):
@@ -36,6 +38,12 @@ def get_all_droplets():
         return json.loads(response.content.decode('utf-8'))
     else:
         return None
+
+def conn(host):
+
+    c = SSHClient(host, user='root', password='', pkey=ssh_key,port=22)
+    
+    return c
 
 
 def does_droplet_exists(droplet):
@@ -231,31 +239,43 @@ def add_domain_rec(droplet, domain):
         click.secho('>>> [!] Failed adding your A record.', fg='bright_red')
         raise RuntimeError(">>> [!] Your domain name {} doesn't exists.".format(domain))
 
+def run_cmd(cmd, domain):
+    client = conn(domain)
+    for command in cmd:
+        x = command
+        output = client.run_command(x)
+        for line in output.stdout:
+            click.echo(line)
+
+
+def upload_html_files(domain):
+    # Uploading the html file to the server
+
+    client = conn(domain)
+
+    click.secho('Uploading your HTML files to the server...', fg='bright_yellow')
+    click.secho('Please wait for up to 30-60 seconds for everything to finish...', fg='bright_yellow')
+
+    loc_file = './html'
+    rem_file = '/var/www/{}/html'.format(domain)
+    uploaded = client.copy_file(loc_file, rem_file, recurse=True)
+
+    time.sleep(5)
+    # Set ownership of the directory
+    cmd = ["sudo chown -R root:root /var/www/{}/html".format(domain), 
+    "sudo chmod -R 755 /var/www/{}".format(domain)
+    ]
+    # Cycle through the cmd list and run each command on the server
+    run_cmd(cmd, domain)
+
 
 def set_nginx(droplet, domain):
+
     host = get_hostname_ip(droplet)
 
     client = SSHClient(host, user='root', password='', pkey=ssh_key,port=22)
-    click.secho('Connecting to your server...', fg='bright_yellow')
 
-    def run_cmd(cmd):
-        for command in cmd:
-                x = command
-                output = client.run_command(x)
-                for line in output.stdout:
-                    click.echo(line)
-    
-    def list_uploaded_files(path):
-        
-        # scan the directory
-        basepath = Path(path)
-        # List all files and directories 
-        # in the specified path that are being uploaded successfully to the server.
-        files_in_basepath = basepath.iterdir()
-        click.echo(' Files uploaded successfully to the server: ')
-        for item in files_in_basepath:
-            if item.is_dir() or item.is_file():
-                click.echo(' * ',item.name)
+    click.secho('Connecting to your server...', fg='bright_yellow')        
         
     def set_ssl():
         # Enabling HTTPS
@@ -269,7 +289,7 @@ def set_nginx(droplet, domain):
         'certbot run --nginx --agree-tos -n -d jediluke.space -d www.jediluke.space -m beauregard.technical.academy@gmail.com --no-eff-email',
         'sudo certbot renew --dry-run']
         # Cycle through the cmd list and run each command on the server
-        run_cmd(cmd)
+        run_cmd(cmd, domain)
 
     def upload_config_files() :
     # This funtion will:
@@ -285,8 +305,6 @@ def set_nginx(droplet, domain):
         upload_2 = client.copy_file(loc_file2, rem_file2)
         click.secho('>>> Config files uploaded sucessfully!', fg='bright_green')
 
-        path = 'files/'
-        list_uploaded_files(path)
 
         cmd = ["sudo mv /etc/nginx/jediluke.space.txt /etc/nginx/sites-available/jediluke.space", 
         "sudo ln -s /etc/nginx/sites-available/jediluke.space /etc/nginx/sites-enabled/", 
@@ -295,30 +313,8 @@ def set_nginx(droplet, domain):
         ]
 
         # Cycle through the cmd list and run each command on the server
-        run_cmd(cmd)
-        
-
-    def upload_html_files():
-        # Uploading the html file to the server
-
-        click.secho('Uploading your HTML files to the server...', fg='bright_yellow')
-        click.secho('Please wait for up to 30 seconds for everything to finish...', fg='bright_yellow')
-
-        loc_file = './html'
-        rem_file = '/var/www/jediluke.space/html'
-        uploaded = client.copy_file(loc_file, rem_file, recurse=True)
-
-        path = 'html/'
-        list_uploaded_files(path)
-
-        time.sleep(5)
-        # Set ownership of the directory
-        cmd = ["sudo chown -R root:root /var/www/jediluke.space/html", 
-        "sudo chmod -R 755 /var/www/jediluke.space"
-        ]
-        # Cycle through the cmd list and run each command on the server
-        run_cmd(cmd)
-
+        run_cmd(cmd, domain)      
+    
 
     def install_nginx():
         # Cycle through the cmd list and run each command on the server
@@ -331,9 +327,9 @@ def set_nginx(droplet, domain):
         "sudo ufw allow 'Nginx HTTP' ",
         "sudo ufw status", 
         "systemctl status nginx", 
-        "sudo mkdir -p /var/www/jediluke.space/html", 
-        "sudo chown -R root:root /var/www/jediluke.space/html", 
-        "sudo chmod -R 755 /var/www/jediluke.space", 
+        "sudo mkdir -p /var/www/{}/html".format(domain), 
+        "sudo chown -R root:root /var/www/{}/html".format(domain), 
+        "sudo chmod -R 755 /var/www/{}".format(domain), 
         "upload"
         ] 
 
@@ -351,8 +347,7 @@ def set_nginx(droplet, domain):
             click.secho('>>> Your Nginx setup is complete!', fg='bright_green')    
            
     install_nginx()    
-    upload_html_files()
-    time.sleep(5)    
+    upload_html_files(domain)
     
     # Test the URL    
     url = 'http://jediluke.space/index.html'
@@ -363,6 +358,70 @@ def set_nginx(droplet, domain):
         click.echo(response.text)      
     else:
         raise RuntimeError('>>> [?] Unexpected Error: [HTTP {0}]: Content: {1}'.format(response.status_code, response.content)) 
+    
+
+#Functions for the command "publish"
+# <--Begin-->
+
+# Finds the page's title and date
+def find_page_title_date(html_filepath):
+    with open(html_filepath, encoding="utf8") as html_text:
+        soup = BeautifulSoup(html_text, features="html.parser")
+
+
+    title = soup.find('title')
+    date = soup.find('h2', class_='date')
+    
+    return title.text, date.text
+
+def insert_code(date, link, title):
+        a = """
+        <li>
+            <aside class="dates">{0}</aside>
+            <a href=".{1}"
+            >{2}
+            <h2></h2
+            ></a>
+        </li>""".format(date, link, title)    
+
+        soup = BeautifulSoup(open('./html/index.html'),'html.parser')
+
+        ul = soup.select_one('#list')
+        ul.append(BeautifulSoup('\n'+a,'html.parser'))
+
+        new_text = soup.prettify()
+
+        with open('./html/index.html', mode='w') as new_html_file:
+            new_html_file.write(new_text)
+
+# Checks if a new html file exists in the folder "articles"
+def check_new_file():
+        
+    path = '/articles'
+    fullpath = 'html{}'.format(path)
+    i = 1
+
+    with os.scandir(fullpath) as files:
+        click.secho("Scraping your files now for page's title and date ...", fg='bright_yellow')
+        for file in files:
+            if file.name.endswith(".html") and file.is_file():                
+                click.echo("File[{0}] - {1} ...".format(i,file.name))                  
+                html_filepath = file.path                
+                data = find_page_title_date(html_filepath)
+                t, d = data
+                title = t
+                date = d
+                i+= 1
+                link = html_filepath.replace(".html", "").replace("\\", "/").replace("html", "")
+                insert_code(date, link, title)
+                time.sleep(3)
+        else:
+            click.secho("Index page updated successfully!", fg='bright_green') 
+
+def update_index_page():
+    check_new_file()
+
+# <--End-->
 
 
 @click.group()
@@ -437,6 +496,17 @@ def deploy(droplet, domain):
     create_domain(droplet, domain)
     add_domain_rec(droplet, domain)
     set_nginx(droplet, domain)
+
+
+@main.command()
+@click.option('--domain', '-dn', default='jediluke.space', help='Domain name (server) to upload the new HTML files.')
+def publish(domain):
+    """Upload all HTML files to the server.
+
+    It will get the page's title and date of each HTML file and updates the content of the index page.
+    """    
+    update_index_page()
+    upload_html_files(domain)
 
 
 if __name__ == '__main__':

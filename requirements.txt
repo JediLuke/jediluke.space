@@ -3,3 +3,4 @@ requests>=2.25.1
 colorama>=0.4.4
 parallel-ssh>=2.5.4
 python-digitalocean>=1.16.0
+beautifulsoup4>=4.9.3
