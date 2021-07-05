@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Registering A Scenic.Component To Capture Input Upon Initialization - Jediluke</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16x16.png">
+    <link rel="manifest" href="../images/site.webmanifest">
+    <link rel="stylesheet" href="../css/blog.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet"/>
+  </head>
+  <body>
+    <header class="main-header">
+        <div class="logo">
+            <h1>JediLuke.space</h1>
+          </div>
+    <nav class="header">      
+      <a href="/">←home</a>      
+      <span id="bar">|</span>
+      <a href="/about/">about</a>
+    </nav>
+    </header>    
+    <section id="wrapper" class="content">
+      <article class="post">
+        <header>
+          <h1 id="center">Registering A Scenic.Component To Capture Input Upon Initialization</h1>
+          <h2 id="center" class="date" >05 Jul 2021</h2>
+        </header>          
+        <section id="post-body">
+          <p>
+            Whilst working on QuillEx, I took a lot of inspiration from the example Scenic Components. In those components, when you click on the line of text, the component will capture the input - In my case, I wanted to open a brand new file - so how can we do this? To answer, I had to dive into the code...
+          </p>
+          
+          <code class="code">
+            <p class="code-line">
+              <span id="purple">if</span> <span id="gray">capture_focus?</span> <span id="purple">do</span></p>
+              <span class="code-indent" id="gray">scene_ref <span id="blue">=</span> <span id="mustard">Process</span>.info(self())[<span id="mustard">:</span><span id="blue">dictionary</span>][<span id="mustard">:</span><span id="blue">scene_ref</span>]<br>
+              <span class="code-indent" id="gray">graph_key <span id="blue">=</span> {<span id="mustard">:</span><span id="blue">graph</span>, scene_ref, <span id="mustard">nil</span>} 
+              <span id="d-gray">#TODO still dont know what the third param is for...</span><br>
+              <span class="code-indent">viewport_ctx <span id="blue">=</span> <span id="mustard">Scenic.</span><span id="mustard">ViewPort</span>.<span id="mustard">Context</span>.build(%{<span id="blue">graph_key</span><span id="mustard">:</span> graph_key})</span><br>
+              <span class="code-indent"><span id="mustard">Process</span>.whereis(<span id="mustard">:</span><span id="blue">main_viewport</span>)</span><br>
+              <span class="code-indent">|> <span id="mustard">GenServer</span>.cast({<span id="mustard">:</span><span id="blue">capture_input</span>, viewport_ctx, <span id="red">@input_capture})</span></span><br>
+              <span class="code-indent" id="d-gray"># And then animate differently - change color or something</span><br>         
+              <span id="purple">end</span>
+            </p>
+          </code>
+          <p>
+            I guess the ViewPort passes it along to the Component when it handles input. This is from one of the default Scenic components, the text input
+          </p>
+          <code class="code">
+            <p class="code-line">              
+              <span id="gray"><span id="purple">defp</span> <span id="blue">capture_focus</span>(context, %{<span id="blue">focused</span><span id="mustard">: false</span>, <span id="blue">graph</span><span id="mustard">:</span> graph, <span id="blue">theme</span><span id="mustard">:</span> theme} <span id="blue">=</span> state) <span id="purple">do</span><br>
+              <span class="code-indent" id="d-gray"># capture the input</span><br>
+              <span class="code-indent" id="gray"><span id="mustard">ViewPort</span>.capture_input(context, <span id="red">@input_capture</span>) </span>
+            </p>
+          </code>
+          <p>
+            So when you click the line of text, it starts capturing keystrokes - I want to open up a new blank text file (in my text editor project) so I want to get the focus right away, without needing to click it Using this method, I was able to create a new Scenic Component <span class="inline-code">textpad</span>. TextPad contains a new component for each line inside it, and when you initialize it, the first line will become active and capture input by default. (NOTE: I ended up moving away from this design, and instead just had input events send to the Scene directly - but input capture will be more important in more complex applications, such as Flamelex) If you would like to see the example of how this component is used, please check out the QuillEx repo. QuillEx is a gedit clone written entirely in Elixir, using Scenic to render a GUI.
+          </p>          
+        </section>
+      </article>
+    </section>
+    <footer class="footer">
+      <section class="social">
+        <a href="https://github.com/JediLuke" class="fa fa-github"></a>
+
+        <p class="copyright">Copyright &#169; 2020 - JediLuke</p>
+      </section>
+    </footer>
+  </body>
+</html>

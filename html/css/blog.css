@@ -180,22 +180,84 @@ code {
   font-weight: bold;
 }
 
+.inline-code {
+  font-size: 80%;
+  font-family: monospace;
+  color: red;
+  background-color: rgba(0,0,0,0.06);
+  word-wrap: break-word;
+  border-radius: 3px;
+  padding: 5px;
+}
+
 .code-line {
   font-size: 14px;
   font-family: monospace;
   display: block;
   padding-left: 10px;
   color: #ef6155;
+  word-wrap: break-word;
+
+}
+
+.code-indent {
+  padding-left: 30px;
+  font-family: monospace;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.code p {
+  padding-bottom: 0px;
 }
 
 #w {
-  color: white;
+  color: #a5a4a2;
+  font-family: monospace;
+  font-size: 14px;
+  padding-left: 30px;
+}
+
+#purple {
+  color: #c678dd;
+  font-family: monospace;
+  font-size: 14px;
+}
+#gray {
+  color: #a5a4a2;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+#mustard {
+  color: #d4a25c;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+#blue {
+  color: #56b6c2;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+#d-gray {
+  color: #7f848e;
+  font-family: monospace;
+  font-size: 14px;
+  font-style: italic;
+}
+
+#red {
+  color: #d45d5c;
   font-family: monospace;
   font-size: 14px;
 }
 
 #c1 {
   padding-left: 30px;
+  font-family: monospace;
+  font-size: 14px;
 }
 
 #c2 {
