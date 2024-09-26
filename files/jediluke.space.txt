@@ -1,0 +1,21 @@
+server {
+        listen 80;
+        listen [::]:80;
+
+        root /var/www/jediluke.space/html;
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name jediluke.space www.jediluke.space;
+
+        # rewrite html extensions
+		rewrite ^(/.+)\.html$ $scheme://$host$1 permanent;
+
+        location / {
+                index index.html index.php;
+                try_files $uri $uri/ $uri.html =404;
+        }
+
+        gzip on;
+        gzip_types application/javascript image/* text/css;
+        gunzip on;
+}
