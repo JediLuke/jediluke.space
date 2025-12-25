@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>jediluke.tech</title>
+    <title>JediLuke | jediluke.space</title>
+    <meta name="description" content="JediLuke - Building developer tools and graphical interfaces with Elixir and Scenic">
     <style>
         * {
             margin: 0;
@@ -19,52 +20,102 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             color: #e0e0e0;
+            padding: 1rem;
         }
 
-        .container {
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            max-width: 400px;
+            width: 100%;
             text-align: center;
-            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            border: 3px solid rgba(148, 93, 214, 0.5);
+            object-fit: cover;
         }
 
         h1 {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             background: linear-gradient(90deg, #4a9eff, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .tagline {
-            font-size: 1.2rem;
+        .title {
+            font-size: 0.95rem;
             color: #888;
-            font-weight: 300;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
         }
 
-        .pulse {
-            width: 8px;
-            height: 8px;
-            background: #4a9eff;
+        .bio {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 2rem;
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            margin: 2rem auto 0;
-            animation: pulse 2s ease-in-out infinite;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.2s ease;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+        .links a:hover {
+            background: rgba(148, 93, 214, 0.2);
+            border-color: rgba(148, 93, 214, 0.4);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .links svg {
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>jediluke</h1>
-        <p class="tagline">Coming Soon</p>
-        <div class="pulse"></div>
+    <div class="card">
+        <img src="https://avatars.githubusercontent.com/u/1879634?s=400" alt="JediLuke" class="avatar">
+        <h1>JediLuke</h1>
+        <p class="title">Elixir Developer</p>
+        <p class="bio">
+            Building developer tools and graphical interfaces with Elixir and Scenic.
+            Creator of Flamelex, Memelex, and contributor to the Scenic ecosystem.
+        </p>
+        <div class="links">
+            <a href="https://github.com/JediLuke" target="_blank" rel="noopener" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
     </div>
 </body>
 </html>
